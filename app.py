@@ -49,6 +49,11 @@ def get_conversation_chain(vectorstore):
     )
     return conversation_chain
 
+def handle_userinput(user_question):
+    response = st.session_state.conversation({'question': user_question})
+    st.write(response)
+
+
 
 def main():
     load_dotenv()
@@ -58,7 +63,9 @@ def main():
         st.session_state.conversation=None
 
     st.header("Chat with multiple PDFs :books:")
-    st.text_input("Ask a question about your documents:")
+    user_question = st.text_input("Ask a question about your documents:")
+    if user_question:
+        handle_userinput(user_question)
 
     with st.sidebar:
         st.subheader("Your documents")
