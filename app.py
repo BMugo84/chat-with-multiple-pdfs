@@ -5,7 +5,9 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 # from langchain.vectorstores import FAISS
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import HuggingFaceHub
+# from langchain_huggingface import HuggingFaceEndpoint
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
 
@@ -36,12 +38,20 @@ def get_vectorstore(text_chunks):
     return vectorstore
 
 def get_conversation_chain(vectorstore):
-    llm = HuggingFaceHub(
-        repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-        model_kwargs={"temperature": 0.7, "max_length": 512}
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-1.5-flash",
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2,
+        # other params...
     )
-    memory = ConversationBufferMemory(memory_key='chat_history',
-                                      return_messages=True)
+    
+    memory = ConversationBufferMemory(
+        memory_key='chat_history',
+        return_messages=True
+    )
+    
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vectorstore.as_retriever(),
@@ -51,7 +61,7 @@ def get_conversation_chain(vectorstore):
 
 def handle_userinput(user_question):
     response = st.session_state.conversation({'question': user_question})
-    st.write(response)
+    st.write(response['answer'])
 
 
 
