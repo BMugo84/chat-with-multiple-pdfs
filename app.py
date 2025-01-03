@@ -60,8 +60,18 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 def handle_userinput(user_question):
-    response = st.session_state.conversation({'question': user_question})
-    st.write(response['answer'])
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    response = st.session_state.conversation.invoke({'question': user_question})
+    st.session_state.messages.append({"role": "user", "content": user_question})
+    st.session_state.messages.append({"role": "assistant", "content": response['answer']})
+
+    # Display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
 
 
 
